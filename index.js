@@ -44,6 +44,11 @@ async function addSubscriberToNotionDatabase(email, name = "") {
 }
 
 async function addButtonDownSubscriber(email, name = "") {
+  var notes = name ? `Name: ${name}` : "";
+  console.log(JSON.stringify({
+    email,
+    notes
+  }))
   try {
     const buttonDownResponse = await fetch(
       "https://api.buttondown.email/v1/subscribers",
@@ -55,8 +60,8 @@ async function addButtonDownSubscriber(email, name = "") {
           Authorization: "Token " + process.env.BUTTONDOWN_API_KEY,
         },
         body: JSON.stringify({
-          email: email,
-          notes: `Name: ${name}`
+          email,
+          notes
         })
       }
     )
