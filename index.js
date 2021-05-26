@@ -22,7 +22,7 @@ app.get('/subscribe', async (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port} 🚀🚀🚀`)
+  console.log(`Buttondown & Notion API example app listening at http://localhost:${port} 🚀🚀🚀`)
 })
 
 
