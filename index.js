@@ -14,8 +14,8 @@ app.get('/subscribe', async (req, res) => {
   const { email, name } = req.body;
   try {
     const result = await addButtonDownSubscriber(email, name)
-    console.log(result.status)
-    res.status(201).json(result);
+    const { status } = result;
+    res.status(status).json(result);
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -53,10 +53,21 @@ async function addButtonDownSubscriber(email, name = "") {
       }
     )
 
-    if (buttonDownResponse.status == "201" || buttonDownResponse.status == "200") {
+
+    if (buttonDownResponse.status == 201 || buttonDownResponse.status == 200) {
       await addSubscriberToNotionDatabase(email, name);
       return {
         status: buttonDownResponse.status,
+        message: "Success! You've subscribed!",
+        email,
+        name
+      }
+    } else {
+      const errorMessage = await buttonDownResponse.json()
+      const message = parseButtondownErrorMessage(errorMessage)
+      return {
+        status: buttonDownResponse.status,
+        message,
         email,
         name
       }
@@ -64,6 +75,25 @@ async function addButtonDownSubscriber(email, name = "") {
   } catch (error) {
     console.error(error)
   }
+}
+
+function parseButtondownErrorMessage(errorMessage) {
+  const duplcateEmailSubscriber = "That email address"
+  const spammyEmail = "Sorry, our system has previously detected this email"
+  const blankEmail = "This field may not be blank"
+
+
+  if (errorMessage[0]?.toLowerCase().includes(duplcateEmailSubscriber.toLowerCase())) {
+    return "The email address you provided is already subscribed."
+  }
+  if (errorMessage[0]?.toLowerCase().includes(spammyEmail.toLowerCase())) {
+    return "There seems to be an issue with the address your provided."
+  }
+  if (errorMessage?.email[0]?.toLowerCase().includes(blankEmail.toLowerCase())) {
+    return "Oops! No email address was provided."
+  }
+
+  return "Oh no! An unknown error occurred."
 }
 
 
